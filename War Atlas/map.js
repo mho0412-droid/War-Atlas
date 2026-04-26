@@ -1,42 +1,32 @@
-I understand. The "All Black" issue is almost certainly caused by the CSS filter in your browser. Since you aren't editing the index.html, we will move all the logic into map.js and use a map style that is naturally darker and has high-contrast borders without needing any special filters or overlays.
-
-To get that "1939 Border" feel with English labels, we will use the CartoDB Positron tiles. It is a light-grey, high-contrast map that clearly outlines country borders and defaults to English.
-
-The Updated map.js
-Replace your entire map.js with this code. I have added a "Parchment Tint" directly into the Javascript so you don't have to touch your HTML at all.
-
-JavaScript
 // 1. Initialize the map
 const map = L.map('map-container', {
     scrollWheelZoom: false,
     zoomSnap: 0.5
 }).setView([45.0, 15.0], 3);
 
-// 2. Add the "Positron" Layer (High Contrast Borders + English)
-// This is the "Light" version of the map you liked earlier, but easier to see.
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO',
-    subdomains: 'abcd',
-    maxZoom: 20
+// 2. WIKIMEDIA MAPS: English, High-Contrast Borders, and Local-File Friendly
+L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', {
+    attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a> | &copy; OpenStreetMap',
+    maxZoom: 18
 }).addTo(map);
 
-// 3. APPLY VINTAGE COLOR (Without touching index.html)
-// This code finds the map element and applies a safe, light filter via JS.
-const mapEl = document.getElementById('map-container');
-if (mapEl) {
-    mapEl.style.filter = "sepia(0.4) contrast(1.1) brightness(0.95)";
-    mapEl.style.background = "#e3d9c6"; 
+// 3. APPLY VINTAGE LOOK (Via Javascript)
+// We use a lighter sepia so borders stay sharp and dark.
+const mapDiv = document.getElementById('map-container');
+if (mapDiv) {
+    mapDiv.style.filter = "sepia(0.3) contrast(1.1) brightness(0.9)";
+    mapDiv.style.background = "#e3d9c6"; 
 }
 
-// 4. Historical Data
+// 4. Historical Locations (English)
 const locations = [
-    { title: "London, UK", coords: [51.5074, -0.1278], desc: "Allied Command" },
-    { title: "Normandy, France", coords: [49.4144, -0.8322], desc: "D-Day Beachhead" },
+    { title: "London, United Kingdom", coords: [51.5074, -0.1278], desc: "Allied Command" },
+    { title: "Normandy, France", coords: [49.4144, -0.8322], desc: "D-Day Landings" },
     { title: "Berlin, Germany", coords: [52.5200, 13.4050], desc: "Axis Power Center" },
-    { title: "Moscow, USSR", coords: [55.7558, 37.6173], desc: "Eastern Front Command" }
+    { title: "Moscow, Soviet Union", coords: [55.7558, 37.6173], desc: "Eastern Front Command" }
 ];
 
-// 5. Custom "Ink Dot" Markers
+// 5. Ink-Dot Marker
 const vintageIcon = L.divIcon({
     className: 'vintage-marker',
     html: '<div style="width: 10px; height: 10px; background: #1a1510; border: 1px solid #fff; border-radius: 50%;"></div>',
@@ -47,9 +37,14 @@ const vintageIcon = L.divIcon({
 locations.forEach(loc => {
     L.marker(loc.coords, { icon: vintageIcon }).addTo(map)
         .bindPopup(`
-            <div style="font-family: sans-serif; text-align:center;">
+            <div style="font-family: sans-serif; text-align:center; min-width: 150px;">
                 <strong style="text-transform: uppercase;">${loc.title}</strong>
                 <p style="font-size: 13px; margin-top: 5px;">${loc.desc}</p>
             </div>
         `);
 });
+
+// 7. AUTO-FIX: This ensures the map renders fully even if it was hidden or loading slowly
+setTimeout(() => {
+    map.invalidateSize();
+}, 500);
