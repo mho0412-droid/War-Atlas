@@ -1,70 +1,74 @@
 /**
- * THE WAR ATLAS - VIDEO REPLICATION ENGINE
+ * THE WAR ATLAS - COLOR-CODED FACTION ENGINE
  */
 
 let monthIndex = 0; 
 const timeline = [
-    { m: "September", y: 1939 }, { m: "December", y: 1939 },
-    { m: "May", y: 1940 },       { m: "August", y: 1940 },
+    { m: "September", y: 1939 }, { m: "May", y: 1940 },
     { m: "June", y: 1941 },      { m: "December", y: 1941 },
     { m: "June", y: 1942 },      { m: "November", y: 1942 },
-    { m: "July", y: 1943 },      { m: "June", y: 1944 },
-    { m: "January", y: 1945 },   { m: "May", y: 1945 }
+    { m: "June", y: 1944 },      { m: "May", y: 1945 }
 ];
 
 const markerGroup = L.layerGroup(); 
 const territoryLayer = L.layerGroup(); 
 
-// 1. INITIALIZE MAP
-const map = L.map('map-container', {
-    scrollWheelZoom: true,
-    zoomSnap: 0.5,
-    minZoom: 2
-}).setView([40.0, 20.0], 3.5);
-
-// 2. LAYERS
+const map = L.map('map-container').setView([45.0, 10.0], 3.5);
 L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png').addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
 territoryLayer.addTo(map);
 markerGroup.addTo(map);
-document.getElementById('map-container').style.filter = "sepia(0.35) contrast(1.15) brightness(0.95)";
+document.getElementById('map-container').style.filter = "sepia(0.3) contrast(1.2)";
 
-// 3. VIDEO-ALIGNED TERRITORY DATA
+// TACTICAL DATA: Axis (Red) and Allies (Blue)
 const territoryData = {
-    "September 1939": [
-        // Germany + Albania (Your specific coordinates)
-        [[[6.08, 50.77], [8.30, 54.90], [22.92, 54.10], [19.00, 48.00], [10.00, 47.00], [6.08, 50.77]]],
-        [[[19.00, 42.50], [20.18, 39.65], [21.00, 41.00], [19.00, 42.50]]]
-    ],
-    "May 1940": [ // Fall of France Expansion
-        [[[ -4.5, 43.0], [7.0, 43.0], [15.0, 46.0], [23.0, 50.0], [23.0, 55.0], [10.0, 58.0], [ -4.5, 50.0], [ -4.5, 43.0]]]
-    ],
-    "June 1941": [ // Start of Barbarossa
-        [[[ -5.0, 40.0], [15.0, 37.0], [30.0, 45.0], [32.0, 55.0], [28.0, 65.0], [10.0, 65.0], [ -5.0, 40.0]]]
-    ],
-    "June 1942": [ // Maximum Axis Extent (Video Timestamp 07:58)
-        [[[ -5.0, 32.0], [30.0, 31.0], [45.0, 43.0], [48.0, 52.0], [42.0, 68.0], [15.0, 70.0], [ -5.0, 65.0], [ -5.0, 32.0]]],
-        [[[95,15],[110, -10],[155, -10],[170,20],[150,50],[95,15]]] // Pacific Peak
-    ],
-    "June 1944": [ // Fortress Europe (Post D-Day)
-        [[[8,47],[15,45],[25,48],[24,55],[10,55],[8,47]]],
-        [[[120,15],[130,5],[145,20],[145,45],[120,40],[120,15]]]
-    ],
-    "May 1945": [ // Final Surrender
-        [[[10,48],[13,48],[13,52],[10,52],[10,48]]]
-    ]
+    "September 1939": {
+        axis: [
+            [[[6.08, 50.77], [8.30, 54.90], [22.92, 54.10], [19.00, 48.00], [10.00, 47.00], [6.08, 50.77]]], // Germany
+            [[[19.00, 42.50], [20.18, 39.65], [21.00, 41.00], [19.00, 42.50]]] // Albania
+        ],
+        allies: [
+            [[[-5, 50], [2, 50], [2, 58], [-5, 58], [-5, 50]]], // UK
+            [[[-5, 42], [7, 42], [7, 50], [-5, 50], [-5, 42]]]  // France
+        ]
+    },
+    "June 1941": {
+        axis: [[[[ -5, 40], [15, 37], [30, 45], [32, 55], [28, 65], [10, 65], [ -5, 40]]]],
+        allies: [
+            [[[-5, 50], [2, 50], [2, 58], [-5, 58], [-5, 50]]], // UK
+            [[[35, 40], [60, 40], [60, 70], [35, 70], [35, 40]]]  // USSR Initial
+        ]
+    },
+    "June 1942": {
+        axis: [
+            [[[ -5, 32], [30, 31], [45, 43], [48, 52], [42, 68], [15, 70], [ -5, 65], [ -5, 32]]],
+            [[[95,15],[110, -10],[155, -10],[170,20],[150,50],[95,15]]] // Pacific Max
+        ],
+        allies: [
+            [[[-5, 50], [2, 50], [2, 58], [-5, 58], [-5, 50]]], // UK
+            [[[48, 40], [70, 40], [70, 75], [48, 75], [48, 40]]]  // USSR Deep Defense
+        ]
+    },
+    "June 1944": {
+        axis: [[[[8, 47], [22, 45], [28, 55], [10, 55], [8, 47]]]],
+        allies: [
+            [[[-5, 42], [10, 42], [10, 55], [-5, 55], [-5, 42]]], // Liberated West
+            [[[25, 40], [60, 40], [60, 70], [25, 70], [25, 40]]]  // Soviet Advance
+        ]
+    },
+    "May 1945": {
+        axis: [[[[13.0, 52.5], [13.5, 52.5], [13.5, 52.8], [13.0, 52.8], [13.0, 52.5]]]], // Berlin Pocket
+        allies: [[[[ -10, 35], [40, 35], [40, 75], [ -10, 75], [ -10, 35]]]] // Europe Liberated
+    }
 };
 
-// 4. LOCATIONS DATA
 const locations = [
-    { date: "September 1939", title: "Invasion of Poland", coords: [52.2, 21.0], casualties: "66,000 Polish Troops", outcome: "Start of WWII.", significance: "Blitzkrieg tactics introduced." },
-    { date: "June 1941", title: "Operation Barbarossa", coords: [53.9, 27.5], casualties: "Millions (Multiple Fronts)", outcome: "Axis advance toward Moscow.", significance: "Largest military invasion in history." },
-    { date: "June 1942", title: "Battle of Midway", coords: [28.2, -177.3], casualties: "3,057 Japanese; 307 Americans", outcome: "US Victory.", significance: "Turning point in the Pacific." },
-    { date: "June 1944", title: "D-Day", coords: [49.4, -0.8], casualties: "10,000+ Allies", outcome: "Allied Beachhead.", significance: "Liberation of France begins." }
+    { date: "September 1939", title: "Invasion of Poland", coords: [52.2, 21.0], casualties: "66,000 Polish Troops", outcome: "Axis occupation." },
+    { date: "June 1941", title: "Operation Barbarossa", coords: [53.9, 27.5], casualties: "Millions", outcome: "Deep Axis advance into USSR." },
+    { date: "June 1944", title: "D-Day", coords: [49.4, -0.8], casualties: "10,000 Allies", outcome: "Western Front Opened." }
 ];
 
-// 5. THE REFRESH LOGIC
 function updateMap() {
     const step = timeline[monthIndex];
     const dateKey = `${step.m} ${step.y}`;
@@ -73,15 +77,24 @@ function updateMap() {
     markerGroup.clearLayers();
     territoryLayer.clearLayers();
 
-    // A. Draw Territory with "Marching Ants" effect
-    if (territoryData[dateKey]) {
-        L.geoJSON({ type: "MultiPolygon", coordinates: territoryData[dateKey] }, {
-            className: 'front-line-path',
-            style: { color: "#8b0000", fillColor: "#8b0000", fillOpacity: 0.22, weight: 3 }
-        }).addTo(territoryLayer);
+    const data = territoryData[dateKey];
+    if (data) {
+        // Draw Axis (Red)
+        if (data.axis) {
+            L.geoJSON({ type: "MultiPolygon", coordinates: data.axis }, {
+                className: 'front-line-path',
+                style: { color: "#8b0000", fillColor: "#8b0000", fillOpacity: 0.22, weight: 3 }
+            }).addTo(territoryLayer);
+        }
+        // Draw Allies (Blue)
+        if (data.allies) {
+            L.geoJSON({ type: "MultiPolygon", coordinates: data.allies }, {
+                className: 'front-line-path',
+                style: { color: "#00468c", fillColor: "#00468c", fillOpacity: 0.22, weight: 3 }
+            }).addTo(territoryLayer);
+        }
     }
 
-    // B. Draw All Markers up to current date
     locations.forEach((loc, idx) => {
         const locYear = parseInt(loc.date.split(" ")[1]);
         if (locYear <= step.y) {
@@ -99,7 +112,6 @@ function updateMap() {
     });
 }
 
-// 6. CONTROLS
 function changeDate(dir) {
     monthIndex = Math.max(0, Math.min(timeline.length - 1, monthIndex + dir));
     updateMap();
@@ -108,23 +120,14 @@ function changeDate(dir) {
 function openArchive(idx) {
     const loc = locations[idx];
     document.getElementById('modal-body').innerHTML = `
-        <h1 style="font-family:'Oswald'; border-bottom:4px solid #1a1510;">${loc.title} (${loc.date})</h1>
+        <h1 style="font-family:'Oswald'; border-bottom:4px solid #1a1510;">DOSSIER: ${loc.title}</h1>
         <div class="dossier-grid">
-            <div>
-                <div class="stat-box"><b>CASUALTY REPORT:</b><br><span class="casualty-count">${loc.casualties}</span></div>
-                <div class="stat-box"><b>SIGNIFICANCE:</b><br>${loc.significance}</div>
-            </div>
-            <div>
-                <h3 style="font-family:'Oswald'; margin-top:0;">CAMPAIGN OUTCOME</h3>
-                <p>${loc.outcome}</p>
-                <div style="margin-top:40px; font-size:10px; color:#999; border-top:1px solid #ddd;">OFFICIAL WAR RECORD: #TACTICAL-CHRONO-ALPHA</div>
-            </div>
+            <div class="stat-box"><b>CASUALTIES:</b><br><span style="color:#8b0000; font-size:20px;">${loc.casualties}</span></div>
+            <div><p><b>OUTCOME:</b><br>${loc.outcome}</p></div>
         </div>`;
     document.getElementById('history-modal').style.display = 'block';
 }
 
 function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
 
-// Init
 updateMap();
-setTimeout(() => { map.invalidateSize(); }, 500);
