@@ -3,10 +3,10 @@ const map = L.map('map-container', {
     scrollWheelZoom: false
 }).setView([45.0, 15.0], 3);
 
-// Option A: OpenStreetMap Humanitarian (No API Key Required)
-L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 19
+// OPTION: Esri World Terrain (Clean, English-focused, No API Key)
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ',
+    maxZoom: 18
 }).addTo(map);
 
 // Locations data
@@ -25,6 +25,11 @@ const locations = [
         title: "Berlin, Germany",
         coords: [52.5200, 13.4050],
         desc: "Capital of the Third Reich."
+    },
+    {
+        title: "Moscow, Russia",
+        coords: [55.7558, 37.6173],
+        desc: "Soviet Strategic Command."
     }
 ];
 
@@ -46,3 +51,14 @@ locations.forEach(loc => {
             </div>
         `);
 });
+2. Adjusting the "Vintage" look in index.html
+Because the Esri map is a bit more detailed (blue oceans, green forests), we need to adjust our CSS filter in index.html to make sure it still looks like 1939 parchment.
+
+Update the .leaflet-container style in your index.html:
+
+CSS
+/* Optimized for Esri World Street Map */
+.leaflet-container {
+  filter: sepia(0.8) contrast(1.2) brightness(0.9) saturate(0.6);
+  background: #e3d9c6 !important;
+}
