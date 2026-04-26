@@ -1,59 +1,48 @@
-// 1. Initialize the map
+// Initialize map centered over Europe/Atlantic
 const map = L.map('map-container', {
-    scrollWheelZoom: false,
-    zoomControl: true
-}).setView([40.0, 10.0], 3); // Centered to show the Atlantic and Europe
+    scrollWheelZoom: false
+}).setView([45.0, 15.0], 3);
 
-// 2. Add the "Stamen Terrain" layer (Classic "Atlas" look)
-// This provider uses English labels globally.
-L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; Stadia Maps, &copy; Stamen Design, &copy; OpenStreetMap',
-    maxZoom: 18
+// Option A: OpenStreetMap Humanitarian (No API Key Required)
+L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19
 }).addTo(map);
 
-// 3. Historical Data with English Labels
+// Locations data
 const locations = [
     {
-        title: "UNITED KINGDOM",
-        city: "London",
+        title: "London, United Kingdom",
         coords: [51.5074, -0.1278],
-        description: "The Blitz and Command HQ."
+        desc: "Command center for the Western Allies."
     },
     {
-        title: "FRANCE",
-        city: "Normandy",
+        title: "Normandy, France",
         coords: [49.4144, -0.8322],
-        description: "Operation Overlord Beachhead."
+        desc: "Site of the D-Day landings."
     },
     {
-        title: "GERMANY",
-        city: "Berlin",
+        title: "Berlin, Germany",
         coords: [52.5200, 13.4050],
-        description: "Central European Theater."
-    },
-    {
-        title: "USA",
-        city: "Pearl Harbor",
-        coords: [21.3648, -157.9492],
-        description: "Entry point for the Pacific War."
+        desc: "Capital of the Third Reich."
     }
 ];
 
-// 4. Custom Icon (Optional: Use a small black circle for a 'printed' look)
+// Simple black dot markers for a 'printed' look
 const vintageIcon = L.divIcon({
     className: 'vintage-marker',
-    html: '<div style="width: 12px; height: 12px; background: black; border: 2px solid white; border-radius: 50%;"></div>',
-    iconSize: [12, 12]
+    html: '<div style="width: 10px; height: 10px; background: #1a1510; border: 1px solid #fff; border-radius: 50%;"></div>',
+    iconSize: [10, 10]
 });
 
-// 5. Add Markers
+// Add locations to map
 locations.forEach(loc => {
-    L.marker(loc.coords, { icon: vintageIcon }).addTo(map)
+    L.marker(loc.coords, { icon: vintageIcon })
+        .addTo(map)
         .bindPopup(`
-            <div style="font-family: 'Oswald', sans-serif; text-align: center;">
-                <span style="font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Location</span><br>
-                <strong style="font-size: 16px; border-bottom: 1px solid #000;">${loc.city}, ${loc.title}</strong>
-                <p style="font-family: 'Libre Baskerville', serif; font-style: italic; font-size: 13px; margin-top: 8px;">${loc.description}</p>
+            <div style="font-family: 'Oswald', sans-serif; text-align:center;">
+                <strong style="text-transform: uppercase; letter-spacing: 1px;">${loc.title}</strong>
+                <p style="font-family: 'Libre Baskerville', serif; font-size: 13px; margin-top: 5px;">${loc.desc}</p>
             </div>
         `);
 });
