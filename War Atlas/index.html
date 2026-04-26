@@ -3,109 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The War Atlas: Tactical Chronology</title>
+    <title>WWII Tactical Atlas: 1939 High-Precision</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --ink: #1a1510;
-            --paper: #f5f0e8;
-            --gold: #c8941a;
-            --blood: #8b0000;
-            --allied: #00468c;
-        }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%;
-            background: var(--paper); font-family: 'Libre Baskerville', serif;
-            overflow: hidden;
-        }
-
-        header {
-            background: var(--ink); color: #d4c8a8;
-            padding: 12px; text-align: center;
-            border-bottom: 2px solid var(--gold);
-            z-index: 1001; position: relative;
-        }
-
-        header h1 { font-family: 'Oswald', sans-serif; margin: 0; letter-spacing: 4px; text-transform: uppercase; font-size: 22px; }
+        :root { --ink: #1a1510; --paper: #f5f0e8; --gold: #c8941a; --blood: #8b0000; --allied: #00468c; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--paper); font-family: 'Libre Baskerville', serif; overflow: hidden; }
+        
+        header { background: var(--ink); color: #d4c8a8; padding: 12px; text-align: center; border-bottom: 2px solid var(--gold); z-index: 1001; position: relative; }
+        header h1 { font-family: 'Oswald', sans-serif; margin: 0; letter-spacing: 4px; text-transform: uppercase; font-size: 20px; }
 
         #map-container { width: 100%; height: calc(100vh - 55px); background: #dcd1ba; }
 
-        /* THE HUD */
-        #time-controls {
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-            z-index: 2000; background: var(--ink); padding: 10px 30px;
-            border: 2px solid var(--gold); display: flex; align-items: center; gap: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
-        }
-
-        .nav-btn {
-            background: none; border: 1px solid var(--gold); color: var(--gold);
-            cursor: pointer; font-family: 'Oswald'; padding: 8px 15px;
-            text-transform: uppercase; font-size: 12px; transition: 0.3s;
-        }
-
-        .nav-btn:hover { background: var(--gold); color: var(--ink); }
-
-        #display-date { 
-            color: #f5f0e8; font-family: 'Oswald'; font-size: 28px; 
-            min-width: 220px; text-align: center; text-transform: uppercase; 
-        }
+        /* HUD & NAVIGATION */
+        #time-controls { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; background: var(--ink); padding: 10px 30px; border: 2px solid var(--gold); display: flex; align-items: center; gap: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
+        .nav-btn { background: none; border: 1px solid var(--gold); color: var(--gold); cursor: pointer; font-family: 'Oswald'; padding: 8px 15px; text-transform: uppercase; font-size: 12px; }
+        #display-date { color: #f5f0e8; font-family: 'Oswald'; font-size: 28px; min-width: 220px; text-align: center; text-transform: uppercase; }
 
         /* COLOR KEY / LEGEND */
-        #map-legend {
-            position: absolute; bottom: 30px; right: 20px; z-index: 2000;
-            background: var(--ink); padding: 15px; border: 2px solid var(--gold);
-            color: #f5f0e8; font-family: 'Oswald', sans-serif;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
+        #map-legend { position: absolute; bottom: 30px; right: 20px; z-index: 2000; background: var(--ink); padding: 15px; border: 2px solid var(--gold); color: #f5f0e8; font-family: 'Oswald', sans-serif; box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
         .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; letter-spacing: 1px; }
         .color-swatch { width: 16px; height: 16px; border: 1px solid #fff; }
-        .swatch-axis { background: rgba(139, 0, 0, 0.5); border-color: var(--blood); }
-        .swatch-allied { background: rgba(0, 70, 140, 0.5); border-color: var(--allied); }
+        .swatch-axis { background: rgba(139, 0, 0, 0.4); border-color: var(--blood); }
+        .swatch-allied { background: rgba(0, 70, 140, 0.4); border-color: var(--allied); }
 
-        /* MARCHING LINES */
-        .front-line-path {
-            stroke-dasharray: 10;
-            animation: march 30s linear infinite;
-            transition: all 0.8s ease-in-out;
-        }
-        @keyframes march { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
+        /* TACTICAL ANIMATION */
+        .front-line-path { stroke-dasharray: 8; animation: march 25s linear infinite; transition: all 0.6s ease-in-out; }
+        @keyframes march { from { stroke-dashoffset: 160; } to { stroke-dashoffset: 0; } }
 
-        /* DOSSIER MODAL */
-        #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,21,16,0.98); z-index: 9999; overflow-y: auto; }
-        .modal-content { max-width: 850px; margin: 40px auto; background: var(--paper); padding: 40px; border: 3px double var(--ink); position: relative; }
-        .close-modal { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; }
-        .archive-btn { margin-top: 8px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 6px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
-        .dossier-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; }
-        .stat-box { background: #e3d9c6; border-left: 4px solid var(--gold); padding: 12px; margin-top: 15px; }
+        /* MODAL */
+        #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,21,16,0.95); z-index: 9999; }
+        .modal-content { max-width: 700px; margin: 50px auto; background: var(--paper); padding: 40px; border: 3px double var(--ink); position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 20px; font-size: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<header><h1>World War II Tactical Chronology</h1></header>
-
+<header><h1>WWII Tactical Archive: Operational Maps</h1></header>
 <div id="map-container"></div>
 
 <div id="time-controls">
-    <button class="nav-btn" onclick="changeDate(-1)">◄ PREV MONTH</button>
+    <button class="nav-btn" onclick="changeDate(-1)">◄ PREV</button>
     <div id="display-date">September 1939</div>
-    <button class="nav-btn" onclick="changeDate(1)">NEXT MONTH ►</button>
+    <button class="nav-btn" onclick="changeDate(1)">NEXT ►</button>
 </div>
 
 <div id="map-legend">
-    <div style="font-size: 10px; color: var(--gold); margin-bottom: 10px; border-bottom: 1px solid var(--gold);">STRATEGIC ALIGNMENT</div>
-    <div class="legend-item">
-        <div class="color-swatch swatch-axis"></div>
-        <span>AXIS POWERS / OCCUPIED</span>
-    </div>
-    <div class="legend-item">
-        <div class="color-swatch swatch-allied"></div>
-        <span>ALLIED POWERS / LIBERATED</span>
-    </div>
+    <div style="font-size: 10px; color: var(--gold); margin-bottom: 8px; border-bottom: 1px solid var(--gold);">MAP OVERLAY</div>
+    <div class="legend-item"><div class="color-swatch swatch-axis"></div><span>AXIS / OCCUPIED</span></div>
+    <div class="legend-item"><div class="color-swatch swatch-allied"></div><span>ALLIED POWERS</span></div>
 </div>
 
 <div id="history-modal">
@@ -117,6 +65,5 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="map.js"></script>
-
 </body>
 </html>
