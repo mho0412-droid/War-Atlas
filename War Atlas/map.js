@@ -1,156 +1,98 @@
-/**
- * THE WAR ATLAS - TACTICAL CHRONOLOGY
+/** * THE WAR ATLAS - VIDEO REPLICATION ENGINE 
  */
 
-let currentYear = 1939;
-const markerGroup = L.layerGroup(); 
-const territoryLayer = L.layerGroup(); 
+let monthIndex = 0; 
+const timeline = [
+    { m: "September", y: 1939 }, { m: "December", y: 1939 },
+    { m: "May", y: 1940 },       { m: "August", y: 1940 },
+    { m: "June", y: 1941 },      { m: "December", y: 1941 },
+    { m: "June", y: 1942 },      { m: "November", y: 1942 },
+    { m: "July", y: 1943 },      { m: "June", y: 1944 },
+    { m: "January", y: 1945 },   { m: "May", y: 1945 }
+];
 
-// 1. INITIALIZE MAP
-const map = L.map('map-container', {
-    scrollWheelZoom: true,
-    zoomSnap: 0.5,
-    minZoom: 2
-}).setView([45.0, 15.0], 4); // Focused more on Europe for the 1939 start
+const markerGroup = L.layerGroup();
+const territoryLayer = L.layerGroup();
 
-// 2. TILE LAYERS
+// 1. MAP INIT
+const map = L.map('map-container').setView([45.0, 15.0], 3.5);
 L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png').addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}').addTo(map);
 
 territoryLayer.addTo(map);
 markerGroup.addTo(map);
+document.getElementById('map-container').style.filter = "sepia(0.3) contrast(1.1)";
 
-const mapDiv = document.getElementById('map-container');
-if (mapDiv) mapDiv.style.filter = "sepia(0.35) contrast(1.2) brightness(0.95)";
-
-// 3. UPDATED TERRITORY DATA (Using your provided 1939 points)
+// 2. VIDEO-ACCURATE COORDINATES (Keyframes)
 const territoryData = {
-    1939: { 
-        type: "MultiPolygon",
-        coordinates: [
-            // GREATER GERMANY: Westerland (N), Suwalki (E), Aachen (W)
-            [[
-                [6.08, 50.77],   // Aachen (West)
-                [8.30, 54.90],   // Westerland (North)
-                [22.92, 54.10],  // Suwalki (East)
-                [19.00, 48.00],  // Central Europe Anchor
-                [10.00, 47.00],  // Southern Anchor
-                [6.08, 50.77]    // Back to Start
-            ]],
-            // ITALIAN ALBANIA: Konispol (S)
-            [[
-                [19.00, 42.50],  // Northern Albania
-                [20.18, 39.65],  // Konispol (South)
-                [21.00, 41.00],  // Eastern Border
-                [19.00, 42.50]   // Back to Start
-            ]]
-        ]
-    },
-    1940: { // Expanded to include France/Low Countries
-        type: "MultiPolygon",
-        coordinates: [[[[ -4.5, 48.0], [ -1.5, 43.0], [7.0, 43.0], [15.0, 46.0], [23.0, 55.0], [10.0, 58.0], [5.0, 58.0], [ -4.5, 48.0]]]]
-    },
-    1941: { // Eastern Front Expansion
-        type: "MultiPolygon",
-        coordinates: [
-            [[[ -5.0, 45.0], [10.0, 37.0], [25.0, 40.0], [45.0, 50.0], [35.0, 65.0], [15.0, 65.0], [ -5.0, 45.0]]],
-            [[[105, 5],[125, -10],[150, 0],[155, 25],[115, 40],[105, 5]]]
-        ]
-    },
-    // ... 1942-1945 data continues similarly
+    "September 1939": [[[[6,50],[15,50],[21,52],[22,55],[15,55],[6,54],[6,50]]]],
+    "May 1940": [[[[ -3,45],[7,45],[15,46],[22,48],[23,55],[10,59],[ -3,59],[ -3,45]]]],
+    "June 1941": [[[[ -5,40],[15,37],[30,45],[32,55],[28,65],[ -5,65],[ -5,40]]]],
+    "June 1942": [
+        [[[ -5,32],[30,31],[45,43],[48,52],[42,68],[15,70],[ -5,65],[ -5,32]]], // Eastern Front Peak
+        [[[95,15],[110, -10],[155, -10],[170,20],[150,50],[95,15]]] // Pacific Peak
+    ],
+    "June 1944": [
+        [[[8,47],[22,45],[28,55],[10,55],[8,47]]], // Italy and Fortress Europe
+        [[[120,15],[135,10],[145,25],[145,45],[120,40],[120,15]]] // Shrinking Pacific
+    ],
+    "May 1945": [[[[10,48],[13,48],[13,52],[10,52],[10,48]]]] // Berlin Final Pocket
 };
 
-// 4. LOCATIONS DATA
+// 3. LOCATIONS (Standard Archive)
 const locations = [
-    { 
-        year: 1939, 
-        title: "Invasion of Poland", 
-        coords: [52.22, 21.01], 
-        img: "poland.jpg", 
-        teaser: "The outbreak of WWII.", 
-        significance: "Germany launched a blitzkrieg invasion of Poland, leading to British and French declarations of war.", 
-        outcome: "Poland was occupied and divided between Germany and the USSR.", 
-        casualties: "Approx. 66,000 Polish troops killed." 
-    },
-    { 
-        year: 1941, 
-        title: "Pearl Harbor", 
-        coords: [21.36, -157.94], 
-        img: "pearl.jpg", 
-        teaser: "US Enters the War.", 
-        significance: "A surprise Japanese air strike on the US Pacific Fleet.", 
-        outcome: "Unified American public opinion for war.", 
-        casualties: "2,403 Americans killed." 
-    }
-    // Add more locations as you find them!
+    { date: "September 1939", title: "Invasion of Poland", coords: [52.2, 21.0], casualties: "66,000 Polish killed", outcome: "Total occupation." },
+    { date: "June 1941", title: "Operation Barbarossa", coords: [53.9, 27.5], casualties: "Millions", outcome: "Deep Axis advance into USSR." },
+    { date: "June 1944", title: "D-Day", coords: [49.4, -0.8], casualties: "10,000 Allies", outcome: "Western Front Opened." }
 ];
 
-// 5. THE CORE ENGINE
+// 4. THE ENGINE
 function updateMap() {
+    const step = timeline[monthIndex];
+    const dateKey = `${step.m} ${step.y}`;
+    document.getElementById('display-date').innerText = dateKey;
+
     markerGroup.clearLayers();
     territoryLayer.clearLayers();
-    document.getElementById('display-year').innerText = currentYear;
 
-    if (territoryData[currentYear]) {
-        L.geoJSON(territoryData[currentYear], {
-            style: {
-                color: "#8b0000",
-                fillColor: "#8b0000",
-                fillOpacity: 0.22,
-                weight: 2,
-                dashArray: '6, 6'
-            }
+    // DRAW FRONT LINES
+    if (territoryData[dateKey]) {
+        L.geoJSON({ type: "MultiPolygon", coordinates: territoryData[dateKey] }, {
+            className: 'front-line-path',
+            style: { color: "#8b0000", fillColor: "#8b0000", fillOpacity: 0.2, weight: 3 }
         }).addTo(territoryLayer);
     }
 
-    locations.forEach((loc, index) => {
-        if (loc.year <= currentYear) {
-            const dotColor = (loc.year === currentYear) ? '#c8941a' : '#1a1510';
-            const vintageIcon = L.divIcon({
-                className: 'vintage-marker',
-                html: `<div style="width:14px; height:14px; background:${dotColor}; border:2px solid #fff; border-radius:50%; box-shadow:0 0 5px rgba(0,0,0,0.5);"></div>`,
-                iconSize: [14, 14]
+    // DRAW MARKERS
+    locations.forEach((loc, idx) => {
+        // Simple logic: if the location's year is <= current year, show it
+        const locYear = parseInt(loc.date.split(" ")[1]);
+        if (locYear <= step.y) {
+            const isNew = (loc.date === dateKey);
+            const icon = L.divIcon({
+                className: 'v-marker',
+                html: `<div style="width:14px; height:14px; background:${isNew ? '#c8941a' : '#000'}; border:2px solid #fff; border-radius:50%;"></div>`
             });
-
-            const popupContent = `
-                <div style="width:190px;">
-                    <div style="font-family:'Oswald'; border-bottom:1px solid #c8941a; font-size:14px;">[${loc.year}] ${loc.title}</div>
-                    <p style="font-size:11px; margin:5px 0;">${loc.teaser}</p>
-                    <button class="archive-btn" onclick="openArchive(${index})">Read Archive</button>
-                </div>
-            `;
-            L.marker(loc.coords, { icon: vintageIcon }).addTo(markerGroup).bindPopup(popupContent);
+            L.marker(loc.coords, { icon: icon }).addTo(markerGroup).bindPopup(`
+                <div style="font-family:'Oswald'; border-bottom:1px solid #c8941a;">${loc.title}</div>
+                <button class="archive-btn" onclick="openArchive(${idx})">Archive Dossier</button>
+            `);
         }
     });
 }
 
-// 6. UI CONTROLS
-function changeYear(step) {
-    const next = currentYear + step;
-    if (next >= 1939 && next <= 1945) {
-        currentYear = next;
-        updateMap();
-    }
+function changeDate(dir) {
+    monthIndex = Math.max(0, Math.min(timeline.length - 1, monthIndex + dir));
+    updateMap();
 }
 
-function openArchive(index) {
-    const loc = locations[index];
+function openArchive(idx) {
+    const loc = locations[idx];
     document.getElementById('modal-body').innerHTML = `
-        <h1 style="font-family:'Oswald'; border-bottom:4px solid #1a1510; letter-spacing:1px;">DOSSIER: ${loc.title}</h1>
+        <h1 style="font-family:'Oswald'; border-bottom:4px solid #000;">${loc.title}</h1>
         <div class="dossier-grid">
-            <div>
-                <img src="images/${loc.img}" style="width:100%; border:2px solid #000;" onerror="this.src='https://placehold.co/450x300/1a1510/d4c8a8?text=Archive+Photo'">
-                <div class="stat-box">
-                    <div style="font-family:'Oswald'; font-size:12px; color:var(--gold);">CASUALTY REPORT</div>
-                    <div class="casualty-count">${loc.casualties}</div>
-                </div>
-            </div>
-            <div>
-                <h3 style="font-family:'Oswald'; margin-top:0;">HISTORICAL SIGNIFICANCE</h3>
-                <p style="font-style:italic; font-size:14px;">"${loc.significance}"</p>
-                <h3 style="font-family:'Oswald'; margin-top:20px;">OUTCOME</h3>
-                <p style="font-size:14px;">${loc.outcome}</p>
-            </div>
+            <div class="stat-box"><b>CASUALTIES:</b><br><span style="color:#8b0000; font-size:20px;">${loc.casualties}</span></div>
+            <div><p><b>FINAL OUTCOME:</b><br>${loc.outcome}</p></div>
         </div>`;
     document.getElementById('history-modal').style.display = 'block';
 }
@@ -158,4 +100,3 @@ function openArchive(index) {
 function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
 
 updateMap();
-setTimeout(() => { map.invalidateSize(); }, 500);
