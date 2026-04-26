@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The War Atlas: Tactical Archive</title>
+    <title>The War Atlas: Tactical Chronology</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -33,25 +33,36 @@
 
         #map-container { width: 100%; height: calc(100vh - 55px); background: #dcd1ba; }
 
-        /* TIME HUD (Heads Up Display) */
+        /* THE HUD (Heads Up Display) */
         #time-controls {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             z-index: 2000; background: var(--ink); padding: 10px 30px;
-            border: 2px solid var(--gold); display: flex; align-items: center; gap: 25px;
+            border: 2px solid var(--gold); display: flex; align-items: center; gap: 20px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
 
-        .year-nav-btn {
+        .nav-btn {
             background: none; border: 1px solid var(--gold); color: var(--gold);
             cursor: pointer; font-family: 'Oswald'; padding: 8px 15px;
             text-transform: uppercase; font-size: 12px; transition: 0.3s;
         }
 
-        .year-nav-btn:hover { background: var(--gold); color: var(--ink); }
+        .nav-btn:hover { background: var(--gold); color: var(--ink); }
 
-        #display-year { color: #f5f0e8; font-family: 'Oswald'; font-size: 38px; min-width: 100px; text-align: center; }
+        #display-date { 
+            color: #f5f0e8; font-family: 'Oswald'; font-size: 28px; 
+            min-width: 220px; text-align: center; text-transform: uppercase; 
+        }
 
-        /* POPUPS */
+        /* TACTICAL FRONT-LINE ANIMATION */
+        .front-line-path {
+            stroke-dasharray: 10;
+            animation: march 30s linear infinite;
+            transition: all 0.8s ease-in-out;
+        }
+        @keyframes march { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
+
+        /* POPUPS & ARCHIVE BUTTON */
         .leaflet-popup-content-wrapper { background: var(--paper) !important; border-radius: 0px !important; border: 2px solid var(--ink); }
         .archive-btn { margin-top: 8px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 6px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
         
@@ -59,27 +70,26 @@
         #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,21,16,0.98); z-index: 9999; overflow-y: auto; }
         .modal-content { max-width: 850px; margin: 40px auto; background: var(--paper); padding: 40px; border: 3px double var(--ink); position: relative; }
         .close-modal { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; }
-        
         .dossier-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 20px; }
         .stat-box { background: #e3d9c6; border-left: 4px solid var(--gold); padding: 12px; margin-top: 15px; }
         .casualty-count { color: var(--blood); font-weight: bold; font-size: 18px; }
 
-        @media (max-width: 700px) { .dossier-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 700px) { 
+            .dossier-grid { grid-template-columns: 1fr; } 
+            #display-date { font-size: 20px; min-width: 140px; }
+        }
     </style>
 </head>
 <body>
 
-<header><h1>World War II Tactical Atlas</h1></header>
+<header><h1>World War II Tactical Chronology</h1></header>
 
 <div id="map-container"></div>
 
 <div id="time-controls">
-    <button class="year-nav-btn" onclick="changeYear(-1)">◄ PREV</button>
-    <div>
-        <div style="color: var(--gold); font-family: 'Oswald'; font-size: 9px; letter-spacing: 2px; text-align: center;">OPERATIONAL YEAR</div>
-        <div id="display-year">1939</div>
-    </div>
-    <button class="year-nav-btn" onclick="changeYear(1)">NEXT ►</button>
+    <button class="nav-btn" onclick="changeDate(-1)">◄ PREV MONTH</button>
+    <div id="display-date">September 1939</div>
+    <button class="nav-btn" onclick="changeDate(1)">NEXT MONTH ►</button>
 </div>
 
 <div id="history-modal">
