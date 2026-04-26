@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The War Atlas: 1939-1945</title>
+    <title>The War Atlas: 1939-1945 Archive</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -13,77 +13,76 @@
             --ink: #1a1510;
             --paper: #f5f0e8;
             --gold: #c8941a;
+            --blood: #8b0000;
         }
 
         body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
+            margin: 0; padding: 0; height: 100%;
             background: var(--paper);
             font-family: 'Libre Baskerville', serif;
-            overflow: hidden; /* Focus on map exploration */
+            overflow: hidden;
         }
 
         header {
-            background: var(--ink);
-            color: #d4c8a8;
-            padding: 15px;
-            text-align: center;
+            background: var(--ink); color: #d4c8a8;
+            padding: 15px; text-align: center;
             border-bottom: 2px solid var(--gold);
-            z-index: 1001;
-            position: relative;
+            z-index: 1001; position: relative;
         }
 
         header h1 {
-            font-family: 'Oswald', sans-serif;
-            margin: 0;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            font-size: 24px;
+            font-family: 'Oswald', sans-serif; margin: 0;
+            letter-spacing: 4px; text-transform: uppercase; font-size: 24px;
         }
 
-        #map-container {
-            width: 100%;
-            height: calc(100vh - 60px); /* Fill screen minus header */
-            background: #dcd1ba;
-        }
+        #map-container { width: 100%; height: calc(100vh - 60px); background: #dcd1ba; }
 
-        /* VINTAGE POPUP STYLING */
+        /* MAP POPUP STYLING */
         .leaflet-popup-content-wrapper {
-            background: var(--paper) !important;
-            border-radius: 0px !important;
-            border: 2px solid var(--ink);
-            box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
-            color: var(--ink);
+            background: var(--paper) !important; border-radius: 0px !important;
+            border: 2px solid var(--ink); box-shadow: 8px 8px 0px rgba(0,0,0,0.15);
         }
 
-        .leaflet-popup-tip {
-            background: var(--paper) !important;
+        .archive-btn {
+            margin-top: 10px; width: 100%; background: var(--ink);
+            color: #d4c8a8; border: none; padding: 8px;
+            cursor: pointer; font-family: 'Oswald', sans-serif;
+            text-transform: uppercase; letter-spacing: 1px;
+            transition: background 0.3s;
         }
 
-        .popup-header {
-            font-family: 'Oswald', sans-serif;
-            font-size: 18px;
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--gold);
-            margin-bottom: 8px;
-            padding-bottom: 2px;
+        .archive-btn:hover { background: var(--gold); color: var(--ink); }
+
+        /* FULL SCREEN MODAL (HISTORY DOSSIER) */
+        #history-modal {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(26,21,16,0.98);
+            z-index: 9999; overflow-y: auto;
         }
 
-        .popup-desc {
-            font-size: 13px;
-            line-height: 1.5;
-            margin: 0;
+        .modal-content {
+            max-width: 900px; margin: 50px auto;
+            background: var(--paper); padding: 50px;
+            border: 3px double var(--ink); position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
         }
 
-        .popup-image {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border: 1px solid var(--ink);
-            margin-bottom: 10px;
-            filter: grayscale(100%) contrast(1.1);
+        .close-modal {
+            position: absolute; top: 20px; right: 30px;
+            font-size: 40px; cursor: pointer; color: var(--ink);
         }
+
+        .dossier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        
+        .stat-box {
+            background: #e3d9c6; border-left: 4px solid var(--gold);
+            padding: 15px; margin-top: 20px;
+        }
+
+        .stat-label { font-family: 'Oswald', sans-serif; text-transform: uppercase; color: var(--gold); font-size: 14px; }
+        .casualty-count { color: var(--blood); font-weight: bold; }
+
+        @media (max-width: 768px) { .dossier-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -93,6 +92,14 @@
 </header>
 
 <div id="map-container"></div>
+
+<div id="history-modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div id="modal-body">
+            </div>
+    </div>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="map.js"></script>
