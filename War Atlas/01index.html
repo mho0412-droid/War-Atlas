@@ -2,61 +2,155 @@
 
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The War Atlas</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville&display=swap" rel="stylesheet">
+  <meta name="description" content="Explore World War II through original photographs and newspaper front pages, organized by time." />
+
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
 
   <style>
-    body { margin:0; font-family: Libre Baskerville, serif; background:#f5f0e8; color:#2a2010; }
-
-    header {
-      background:#1a1510; color:#d4c8a8;
-      text-align:center; padding:70px 20px;
+    :root {
+      --ink: #1a1510;
+      --paper: #f5f0e8;
+      --gold: #c8941a;
+      --text: #2a2010;
+      --muted: #6a5a40;
+      --border: #d0c0a0;
     }
 
-    h1 { font-family: Oswald; letter-spacing:2px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
-    .container { max-width:800px; margin:40px auto; padding:0 20px; }
-
-    a.event {
-      display:block;
-      margin-bottom:40px;
-      text-decoration:none;
-      color:inherit;
-      border-bottom:1px solid #d0c0a0;
-      padding-bottom:20px;
+    body {
+      font-family: 'Libre Baskerville', serif;
+      background: var(--paper);
+      color: var(--text);
+      line-height: 1.7;
     }
 
-    a.event img {
-      width:100%; height:220px; object-fit:cover;
-      filter:grayscale(100%);
+    .hero {
+      background: var(--ink);
+      color: #d4c8a8;
+      padding: 80px 20px 60px;
+      text-align: center;
+      border-bottom: 3px double #5a4a30;
     }
 
-    .date { font-family:Oswald; font-size:12px; color:#6a5a40; letter-spacing:2px; margin-top:10px; }
-    h2 { font-family:Oswald; }
+    .hero h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 42px;
+      letter-spacing: 2px;
+      margin-bottom: 12px;
+    }
 
+    .hero p {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 16px;
+      color: #8a7a5a;
+    }
+
+    .timeline {
+      max-width: 760px;
+      margin: 60px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    .event {
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      display: block;
+      transition: opacity .2s ease;
+    }
+
+    .event:hover { opacity: 0.8; }
+
+    .event img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      margin-bottom: 14px;
+      filter: grayscale(100%) contrast(1.05);
+    }
+
+    .date {
+      font-family: 'Oswald', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .event h2 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .event p {
+      font-size: 14px;
+      color: #4a3a28;
+    }
+
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 12px;
+      color: #7a6a50;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 32px; }
+      .event img { height: 180px; }
+    }
   </style>
 
 </head>
 
 <body>
 
-<header>
+<header class="hero">
   <h1>The War Atlas</h1>
-  <p>World War II visual archive</p>
+  <p>World War II through original photographs and front pages — organized by time.</p>
 </header>
 
-<div class="container">
+<main class="timeline">
 
-  <a class="event" href="./d-day.html">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Into_the_Jaws_of_Death_23-0455M_edit.jpg">
+  <a href="d-day.html" class="event">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Into_the_Jaws_of_Death_23-0455M_edit.jpg" alt="D-Day landing"/>
     <div class="date">June 6, 1944</div>
     <h2>D-Day</h2>
+    <p>Allied forces land in Normandy, opening the Western Front.</p>
   </a>
 
-</div>
+  <a href="#" class="event">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/USS_Arizona_burning.jpg" alt="Pearl Harbor"/>
+    <div class="date">December 7, 1941</div>
+    <h2>Pearl Harbor</h2>
+    <p>Japan attacks a U.S. naval base, bringing America into the war.</p>
+  </a>
+
+  <a href="#" class="event">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Stalingrad_ruins.jpg" alt="Stalingrad"/>
+    <div class="date">1942–1943</div>
+    <h2>Battle of Stalingrad</h2>
+    <p>A brutal turning point on the Eastern Front.</p>
+  </a>
+
+</main>
+
+<footer>
+  The War Atlas · A visual archive of World War II
+</footer>
 
 </body>
 </html>
