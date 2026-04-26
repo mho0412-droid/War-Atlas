@@ -6,7 +6,6 @@
   <title>The War Atlas</title>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet"/>
 
   <style>
@@ -15,8 +14,6 @@
       --paper: #f5f0e8;
       --gold: #c8941a;
       --text: #2a2010;
-      --muted: #6a5a40;
-      --border: #d0c0a0;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,105 +22,59 @@
       font-family: 'Libre Baskerville', serif;
       background: var(--paper);
       color: var(--text);
-      line-height: 1.7;
+      overflow: hidden; /* Prevents page scrolling so the map is the focus */
     }
 
     .hero {
       background: var(--ink);
       color: #d4c8a8;
-      padding: 80px 20px 60px;
+      padding: 20px;
       text-align: center;
-      border-bottom: 3px double #5a4a30;
+      border-bottom: 2px solid var(--gold);
     }
 
     .hero h1 {
       font-family: 'Oswald', sans-serif;
-      font-size: 42px;
-      letter-spacing: 2px;
-      margin-bottom: 12px;
-    }
-
-    .hero p {
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 16px;
-      color: #8a7a5a;
-    }
-
-    /* MAP CONTAINER STYLING */
-    #map-container {
-      width: 100%;
-      height: 400px;
-      border-bottom: 1px solid var(--border);
-      background: #111;
-    }
-
-    /* Give the map a "Vintage" sepia/grayscale feel */
-    .leaflet-container {
-      filter: sepia(0.5) hue-rotate(-15deg) contrast(1.2) brightness(0.8);
-    }
-
-    .timeline {
-      max-width: 760px;
-      margin: 60px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 48px;
-    }
-
-    .event {
-      text-decoration: none;
-      color: inherit;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 24px;
-      display: block;
-      transition: opacity .2s ease;
-    }
-
-    .event:hover { opacity: 0.8; }
-
-    .event img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      margin-bottom: 14px;
-      filter: grayscale(100%) contrast(1.05);
-    }
-
-    .date {
-      font-family: 'Oswald', sans-serif;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: var(--muted);
+      font-size: 28px;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      margin-bottom: 6px;
     }
 
-    .event h2 {
+    /* FULL SCREEN MAP */
+    #map-container {
+      width: 100vw;
+      height: calc(100vh - 80px); /* Fill screen minus header height */
+      background: #dcd1ba;
+    }
+
+    /* CUSTOM POPUP STYLING */
+    .leaflet-popup-content-wrapper {
+      border-radius: 0;
+      background: var(--paper);
+      border: 1px solid var(--ink);
+      padding: 5px;
+    }
+
+    .popup-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      filter: grayscale(100%) contrast(1.2);
+      margin-bottom: 8px;
+      border: 1px solid var(--ink);
+    }
+
+    .popup-title {
       font-family: 'Oswald', sans-serif;
-      font-size: 24px;
-      margin-bottom: 6px;
+      font-size: 16px;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+      display: block;
     }
 
-    .event p {
-      font-size: 14px;
-      color: #4a3a28;
-    }
-
-    footer {
-      text-align: center;
-      padding: 40px 20px;
+    .popup-desc {
       font-size: 12px;
-      color: #7a6a50;
-      border-top: 1px solid var(--border);
-      margin-top: 60px;
-    }
-
-    @media (max-width: 600px) {
-      .hero h1 { font-size: 32px; }
-      .event img { height: 180px; }
-      #map-container { height: 300px; }
+      line-height: 1.4;
     }
   </style>
 </head>
@@ -131,37 +82,9 @@
 
 <header class="hero">
   <h1>The War Atlas</h1>
-  <p>World War II through original photographs and front pages — organized by time.</p>
 </header>
 
 <div id="map-container"></div>
-
-<main class="timeline">
-  <a href="d-day.html" class="event">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Into_the_Jaws_of_Death_23-0455M_edit.jpg" alt="D-Day landing"/>
-    <div class="date">June 6, 1944</div>
-    <h2>D-Day</h2>
-    <p>Allied forces land in Normandy, opening the Western Front.</p>
-  </a>
-
-  <a href="#" class="event">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/1/1d/USS_Arizona_burning.jpg" alt="Pearl Harbor"/>
-    <div class="date">December 7, 1941</div>
-    <h2>Pearl Harbor</h2>
-    <p>Japan attacks a U.S. naval base, bringing America into the war.</p>
-  </a>
-
-  <a href="#" class="event">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/3/3d/Stalingrad_ruins.jpg" alt="Stalingrad"/>
-    <div class="date">1942–1943</div>
-    <h2>Battle of Stalingrad</h2>
-    <p>A brutal turning point on the Eastern Front.</p>
-  </a>
-</main>
-
-<footer>
-  The War Atlas · A visual archive of World War II
-</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="map.js"></script>
