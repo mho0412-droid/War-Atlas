@@ -1,9 +1,9 @@
-\<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The War Atlas: Chronology Mode</title>
+    <title>The War Atlas: Tactical Archive</title>
     
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
@@ -24,59 +24,62 @@
 
         header {
             background: var(--ink); color: #d4c8a8;
-            padding: 15px; text-align: center;
+            padding: 12px; text-align: center;
             border-bottom: 2px solid var(--gold);
             z-index: 1001; position: relative;
         }
 
-        header h1 { font-family: 'Oswald', sans-serif; margin: 0; letter-spacing: 4px; text-transform: uppercase; font-size: 24px; }
+        header h1 { font-family: 'Oswald', sans-serif; margin: 0; letter-spacing: 4px; text-transform: uppercase; font-size: 22px; }
 
-        #map-container { width: 100%; height: calc(100vh - 60px); background: #dcd1ba; }
+        #map-container { width: 100%; height: calc(100vh - 55px); background: #dcd1ba; }
 
-        /* TIME HUD */
+        /* TIME HUD (Heads Up Display) */
         #time-controls {
-            position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
-            z-index: 2000; background: var(--ink); padding: 15px 40px;
-            border: 2px solid var(--gold); display: flex; align-items: center; gap: 30px;
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            z-index: 2000; background: var(--ink); padding: 10px 30px;
+            border: 2px solid var(--gold); display: flex; align-items: center; gap: 25px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.6);
         }
 
         .year-nav-btn {
             background: none; border: 1px solid var(--gold); color: var(--gold);
-            cursor: pointer; font-family: 'Oswald'; padding: 10px 20px;
-            text-transform: uppercase; letter-spacing: 1px; transition: 0.3s;
+            cursor: pointer; font-family: 'Oswald'; padding: 8px 15px;
+            text-transform: uppercase; font-size: 12px; transition: 0.3s;
         }
 
         .year-nav-btn:hover { background: var(--gold); color: var(--ink); }
 
-        #display-year { color: #f5f0e8; font-family: 'Oswald'; font-size: 42px; line-height: 1; min-width: 120px; text-align: center; }
+        #display-year { color: #f5f0e8; font-family: 'Oswald'; font-size: 38px; min-width: 100px; text-align: center; }
 
-        /* POPUPS & MODALS */
+        /* POPUPS */
         .leaflet-popup-content-wrapper { background: var(--paper) !important; border-radius: 0px !important; border: 2px solid var(--ink); }
-        .archive-btn { margin-top: 10px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 8px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
+        .archive-btn { margin-top: 8px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 6px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
         
+        /* DOSSIER MODAL */
         #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,21,16,0.98); z-index: 9999; overflow-y: auto; }
-        .modal-content { max-width: 900px; margin: 50px auto; background: var(--paper); padding: 50px; border: 3px double var(--ink); position: relative; }
-        .close-modal { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; }
+        .modal-content { max-width: 850px; margin: 40px auto; background: var(--paper); padding: 40px; border: 3px double var(--ink); position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; }
         
-        .dossier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; }
-        .stat-box { background: #e3d9c6; border-left: 4px solid var(--gold); padding: 15px; margin-top: 20px; }
-        .casualty-count { color: var(--blood); font-weight: bold; }
+        .dossier-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 20px; }
+        .stat-box { background: #e3d9c6; border-left: 4px solid var(--gold); padding: 12px; margin-top: 15px; }
+        .casualty-count { color: var(--blood); font-weight: bold; font-size: 18px; }
+
+        @media (max-width: 700px) { .dossier-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
 
-<header><h1>The War Atlas</h1></header>
+<header><h1>World War II Tactical Atlas</h1></header>
 
 <div id="map-container"></div>
 
 <div id="time-controls">
-    <button class="year-nav-btn" onclick="changeYear(-1)">◄ Prior Year</button>
+    <button class="year-nav-btn" onclick="changeYear(-1)">◄ PREV</button>
     <div>
-        <div style="color: var(--gold); font-family: 'Oswald'; font-size: 10px; letter-spacing: 2px; text-align: center;">CHRONOLOGY</div>
+        <div style="color: var(--gold); font-family: 'Oswald'; font-size: 9px; letter-spacing: 2px; text-align: center;">OPERATIONAL YEAR</div>
         <div id="display-year">1939</div>
     </div>
-    <button class="year-nav-btn" onclick="changeYear(1)">Next Year ►</button>
+    <button class="year-nav-btn" onclick="changeYear(1)">NEXT ►</button>
 </div>
 
 <div id="history-modal">
