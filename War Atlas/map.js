@@ -1,50 +1,70 @@
 // 1. Initialize the map
 const map = L.map('map-container', {
-    scrollWheelZoom: false,
+    scrollWheelZoom: true,
     zoomSnap: 0.5
-}).setView([45.0, 15.0], 3);
+}).setView([30.0, 10.0], 2.5);
 
-// 2. THE BACKGROUND (Ocean and Land Color)
-// We use the "Humanitarian" layer because it colors land and water differently
+// 2. LAYER 1: The Base (Land/Water colors)
 L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
+    attribution: '&copy; OpenStreetMap',
     maxZoom: 19
 }).addTo(map);
 
-// 3. THE BORDERS & LABELS (High Contrast Ink)
-// We lay this on top like a transparent piece of film with black borders.
-// This layer is 100% English and specifically for outlines.
+// 3. LAYER 2: The Borders & English Labels (High Contrast)
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Labels &copy; Esri',
     maxZoom: 18
 }).addTo(map);
 
-// 4. THE VINTAGE CONTRAST (Via Javascript)
+// 4. APPLY THE VINTAGE FILTER (Via JS)
 const mapDiv = document.getElementById('map-container');
 if (mapDiv) {
-    // This filter darkens the borders (Reference layer) 
-    // while shifting the land colors into a vintage palette.
-    mapDiv.style.filter = "sepia(0.5) contrast(1.5) brightness(0.9) saturate(1.2)";
-    mapDiv.style.background = "#dcd1ba"; 
+    mapDiv.style.filter = "sepia(0.4) contrast(1.3) brightness(0.95)";
 }
 
-// 5. Locations (English)
+// 5. DATA WITH IMAGES
 const locations = [
-    { title: "London, UK", coords: [51.5074, -0.1278], desc: "Allied HQ" },
-    { title: "Normandy, France", coords: [49.4144, -0.8322], desc: "D-Day Landings" },
-    { title: "Berlin, Germany", coords: [52.5200, 13.4050], desc: "Axis Center" }
+    { 
+        title: "D-Day (Normandy)", 
+        coords: [49.4144, -0.8322], 
+        img: "https://upload.wikimedia.org/wikipedia/commons/a/a5/Into_the_Jaws_of_Death_23-0455M_edit.jpg",
+        desc: "June 6, 1944: Allied forces land in occupied France." 
+    },
+    { 
+        title: "Pearl Harbor", 
+        coords: [21.3648, -157.9492], 
+        img: "https://upload.wikimedia.org/wikipedia/commons/1/1d/USS_Arizona_burning.jpg",
+        desc: "Dec 7, 1941: Japan attacks the U.S. Pacific Fleet." 
+    },
+    { 
+        title: "Stalingrad", 
+        coords: [48.7080, 44.5133], 
+        img: "https://upload.wikimedia.org/wikipedia/commons/3/3d/Stalingrad_ruins.jpg",
+        desc: "1942–1943: A brutal turning point on the Eastern Front." 
+    }
 ];
 
+// 6. CUSTOM ICON
 const vintageIcon = L.divIcon({
     className: 'vintage-marker',
-    html: '<div style="width: 12px; height: 12px; background: #000; border: 2px solid #fff; border-radius: 50%;"></div>',
-    iconSize: [12, 12]
+    html: '<div style="width: 14px; height: 14px; background: #000; border: 2px solid #c8941a; border-radius: 50%;"></div>',
+    iconSize: [14, 14]
 });
 
+// 7. ADD MARKERS WITH PHOTO POPUPS
 locations.forEach(loc => {
-    L.marker(loc.coords, { icon: vintageIcon }).addTo(map)
-        .bindPopup(`<b>${loc.title}</b><br>${loc.desc}`);
+    const popupContent = `
+        <div style="width: 200px;">
+            <img src="${loc.img}" class="popup-img">
+            <span class="popup-title">${loc.title}</span>
+            <p class="popup-desc">${loc.desc}</p>
+        </div>
+    `;
+
+    L.marker(loc.coords, { icon: vintageIcon })
+        .addTo(map)
+        .bindPopup(popupContent);
 });
 
-// Force fix for local file rendering
+// Force refresh
 setTimeout(() => { map.invalidateSize(); }, 400);
