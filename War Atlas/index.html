@@ -14,6 +14,7 @@
             --paper: #f5f0e8;
             --gold: #c8941a;
             --blood: #8b0000;
+            --allied: #00468c;
         }
 
         body, html {
@@ -33,7 +34,7 @@
 
         #map-container { width: 100%; height: calc(100vh - 55px); background: #dcd1ba; }
 
-        /* THE HUD (Heads Up Display) */
+        /* THE HUD */
         #time-controls {
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
             z-index: 2000; background: var(--ink); padding: 10px 30px;
@@ -54,7 +55,19 @@
             min-width: 220px; text-align: center; text-transform: uppercase; 
         }
 
-        /* TACTICAL FRONT-LINE ANIMATION */
+        /* COLOR KEY / LEGEND */
+        #map-legend {
+            position: absolute; bottom: 30px; right: 20px; z-index: 2000;
+            background: var(--ink); padding: 15px; border: 2px solid var(--gold);
+            color: #f5f0e8; font-family: 'Oswald', sans-serif;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+        .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 11px; letter-spacing: 1px; }
+        .color-swatch { width: 16px; height: 16px; border: 1px solid #fff; }
+        .swatch-axis { background: rgba(139, 0, 0, 0.5); border-color: var(--blood); }
+        .swatch-allied { background: rgba(0, 70, 140, 0.5); border-color: var(--allied); }
+
+        /* MARCHING LINES */
         .front-line-path {
             stroke-dasharray: 10;
             animation: march 30s linear infinite;
@@ -62,22 +75,13 @@
         }
         @keyframes march { from { stroke-dashoffset: 200; } to { stroke-dashoffset: 0; } }
 
-        /* POPUPS & ARCHIVE BUTTON */
-        .leaflet-popup-content-wrapper { background: var(--paper) !important; border-radius: 0px !important; border: 2px solid var(--ink); }
-        .archive-btn { margin-top: 8px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 6px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
-        
         /* DOSSIER MODAL */
         #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(26,21,16,0.98); z-index: 9999; overflow-y: auto; }
         .modal-content { max-width: 850px; margin: 40px auto; background: var(--paper); padding: 40px; border: 3px double var(--ink); position: relative; }
         .close-modal { position: absolute; top: 15px; right: 25px; font-size: 35px; cursor: pointer; }
-        .dossier-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; margin-top: 20px; }
+        .archive-btn { margin-top: 8px; width: 100%; background: var(--ink); color: #d4c8a8; border: none; padding: 6px; cursor: pointer; font-family: 'Oswald'; text-transform: uppercase; }
+        .dossier-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 25px; }
         .stat-box { background: #e3d9c6; border-left: 4px solid var(--gold); padding: 12px; margin-top: 15px; }
-        .casualty-count { color: var(--blood); font-weight: bold; font-size: 18px; }
-
-        @media (max-width: 700px) { 
-            .dossier-grid { grid-template-columns: 1fr; } 
-            #display-date { font-size: 20px; min-width: 140px; }
-        }
     </style>
 </head>
 <body>
@@ -90,6 +94,18 @@
     <button class="nav-btn" onclick="changeDate(-1)">◄ PREV MONTH</button>
     <div id="display-date">September 1939</div>
     <button class="nav-btn" onclick="changeDate(1)">NEXT MONTH ►</button>
+</div>
+
+<div id="map-legend">
+    <div style="font-size: 10px; color: var(--gold); margin-bottom: 10px; border-bottom: 1px solid var(--gold);">STRATEGIC ALIGNMENT</div>
+    <div class="legend-item">
+        <div class="color-swatch swatch-axis"></div>
+        <span>AXIS POWERS / OCCUPIED</span>
+    </div>
+    <div class="legend-item">
+        <div class="color-swatch swatch-allied"></div>
+        <span>ALLIED POWERS / LIBERATED</span>
+    </div>
 </div>
 
 <div id="history-modal">
