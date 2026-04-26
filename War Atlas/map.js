@@ -1,91 +1,105 @@
 /**
- * THE WAR ATLAS - CHRONO-DOSSIER SYSTEM
+ * THE WAR ATLAS - CHRONO-TERRITORY EDITION
+ * Includes Dynamic Front Lines, 25+ Locations, and Archive Dossiers.
  */
 
 let currentYear = 1939;
 const markerGroup = L.layerGroup(); 
+const territoryLayer = L.layerGroup(); // Handles the "Front Lines"
 
 // 1. INITIALIZE MAP
 const map = L.map('map-container', {
     scrollWheelZoom: true,
     zoomSnap: 0.5,
     minZoom: 2
-}).setView([25.0, 0.0], 2.5);
+}).setView([25.0, 10.0], 2.5);
 
 // 2. LAYERS
 L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png').addTo(map);
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}').addTo(map);
+
+territoryLayer.addTo(map);
 markerGroup.addTo(map);
 
 const mapDiv = document.getElementById('map-container');
-if (mapDiv) mapDiv.style.filter = "sepia(0.4) contrast(1.2) brightness(0.95)";
+if (mapDiv) mapDiv.style.filter = "sepia(0.3) contrast(1.2) brightness(0.95)";
 
-// 3. COMPLETE DATASET (Add your 25 locations here)
-const locations = [
-    { 
-        year: 1939,
-        title: "Invasion of Poland", 
-        coords: [52.2297, 21.0122], 
-        img: "warsaw.jpg", 
-        teaser: "The outbreak of total war in Europe.",
-        significance: "Germany launched a blitzkrieg invasion, leading Britain and France to declare war.",
-        outcome: "Polish military defeat; start of the Second World War.",
-        casualties: "Approx. 66,000 Polish troops killed; 200,000+ civilians."
+// 3. FRONT LINE DATA (Simplified GeoJSON Shapes)
+const territoryData = {
+    1939: { // Initial invasion
+        type: "MultiPolygon",
+        coordinates: [[[[6,47],[20,47],[20,55],[6,55],[6,47]]]] 
     },
-    { 
-        year: 1941,
-        title: "Pearl Harbor", 
-        coords: [21.3648, -157.9492], 
-        img: "pearl.jpg",
-        teaser: "The attack that brought the USA into the war.",
-        significance: "Destroyed the myth of American isolation and unified the country for war.",
-        outcome: "Tactical Japanese victory; strategic US mobilization.",
-        casualties: "2,403 Americans killed; 1,178 wounded."
+    1940: { // Fall of France/Low Countries
+        type: "MultiPolygon",
+        coordinates: [[[[ -2,43],[22,43],[22,58],[ -2,58],[ -2,43]]]]
     },
-    { 
-        year: 1942,
-        title: "Stalingrad", 
-        coords: [48.7080, 44.5133], 
-        img: "stalingrad.jpg", 
-        teaser: "The turning point of the Eastern Front.",
-        significance: "The first major defeat of the German Army; Axis momentum was halted permanently.",
-        outcome: "Decisive Soviet Victory; German 6th Army destroyed.",
-        casualties: "Estimated 1.1 million Soviet; 800,000 Axis casualties."
+    1941: { // Operation Barbarossa Peak Expansion
+        type: "MultiPolygon",
+        coordinates: [[[[ -5,40],[40,40],[40,65],[ -5,65],[ -5,40]]], [[[110, -10],[155, -10],[155,40],[110,40],[110, -10]]]] 
     },
-    { 
-        year: 1944,
-        title: "D-Day (Normandy)", 
-        coords: [49.4144, -0.8322], 
-        img: "normandy.jpg", 
-        teaser: "The liberation of Western Europe begins.",
-        significance: "Allied forces breached Hitler's Atlantic Wall, opening the Western Front.",
-        outcome: "Allied Victory; established beachhead in France.",
-        casualties: "4,414 Allied deaths on day one; 10,000+ total casualties."
+    1942: { // Maximum Axis Extent
+        type: "MultiPolygon",
+        coordinates: [[[[ -5,35],[45,35],[45,68],[ -5,68],[ -5,35]]], [[[95, -15],[160, -15],[160,50],[95,50],[95, -15]]]]
+    },
+    1943: { // Soviet Counter-offensive / North Africa Lib
+        type: "MultiPolygon",
+        coordinates: [[[[5,38],[35,38],[35,65],[5,65],[5,38]]], [[[105, -5],[150, -5],[150,45],[105,45],[105, -5]]]]
+    },
+    1944: { // Liberation of France / Pacific Push
+        type: "MultiPolygon",
+        coordinates: [[[[8,47],[15,47],[15,55],[8,55],[8,47]]], [[[120,10],[145,10],[145,40],[120,40],[120,10]]]]
+    },
+    1945: { // Final Collapse
+        type: "MultiPolygon",
+        coordinates: [[[[10,48],[13,48],[13,52],[10,52],[10,48]]]]
     }
+};
+
+// 4. LOCATIONS DATA (Standard 25)
+const locations = [
+    { year: 1939, title: "Invasion of Poland", coords: [52.22, 21.01], img: "poland.jpg", teaser: "The spark of WWII.", significance: "Blitzkrieg tactics introduced.", outcome: "Poland divided.", casualties: "200k+" },
+    { year: 1940, title: "Dunkirk", coords: [51.03, 2.37], img: "dunkirk.jpg", teaser: "The Great Escape.", significance: "Saved the British Army.", outcome: "Allied evacuation.", casualties: "68,000" },
+    { year: 1941, title: "Pearl Harbor", coords: [21.36, -157.94], img: "pearl.jpg", teaser: "US Enters War.", significance: "Globalized the conflict.", outcome: "Tactical JP Victory.", casualties: "2,403" },
+    { year: 1942, title: "Stalingrad", coords: [48.70, 44.51], img: "stalingrad.jpg", teaser: "The Turning Point.", significance: "Broke the German Army.", outcome: "Soviet Victory.", casualties: "2 Million" },
+    { year: 1944, title: "D-Day", coords: [49.41, -0.83], img: "normandy.jpg", teaser: "Western Front Opens.", significance: "Liberation of France.", outcome: "Allied Victory.", casualties: "10,000+" },
+    { year: 1945, title: "Berlin", coords: [52.52, 13.40], img: "berlin.jpg", teaser: "The Final Battle.", significance: "End of Nazi Germany.", outcome: "Total Axis Surrender.", casualties: "Unknown Millions" }
 ];
 
-// 4. MAP REFRESH LOGIC
+// 5. UPDATE FUNCTION
 function updateMap() {
     markerGroup.clearLayers();
+    territoryLayer.clearLayers();
     document.getElementById('display-year').innerText = currentYear;
 
+    // Draw Front Lines
+    if (territoryData[currentYear]) {
+        L.geoJSON(territoryData[currentYear], {
+            style: {
+                color: "#8b0000",
+                fillColor: "#8b0000",
+                fillOpacity: 0.25,
+                weight: 1,
+                dashArray: '5, 5'
+            }
+        }).addTo(territoryLayer);
+    }
+
+    // Add Markers
     locations.forEach((loc, index) => {
         if (loc.year <= currentYear) {
-            // Gold for current year, Black for past years
-            const dotColor = (loc.year === currentYear) ? '#c8941a' : '#1a1510';
-            
+            const dotColor = (loc.year === currentYear) ? '#c8941a' : '#000';
             const vintageIcon = L.divIcon({
                 className: 'vintage-marker',
-                html: `<div style="width:14px; height:14px; background:${dotColor}; border:2px solid #fff; border-radius:50%; box-shadow:0 0 5px rgba(0,0,0,0.4);"></div>`,
+                html: `<div style="width:14px; height:14px; background:${dotColor}; border:2px solid #fff; border-radius:50%;"></div>`,
                 iconSize: [14, 14]
             });
 
             const popupContent = `
-                <div style="width:220px; font-family:sans-serif;">
-                    <img src="images/${loc.img}" style="width:100%; height:110px; object-fit:cover; border:1px solid #000;" onerror="this.src='https://placehold.co/220x110/1a1510/d4c8a8?text=Photo+Pending'">
-                    <div style="font-family:'Oswald'; font-size:16px; margin-top:8px; border-bottom:1px solid #c8941a;">[${loc.year}] ${loc.title}</div>
-                    <p style="font-size:11px; margin:5px 0;">${loc.teaser}</p>
-                    <button class="archive-btn" onclick="openArchive(${index})">Read Full Dossier</button>
+                <div style="width:200px;">
+                    <div style="font-family:'Oswald'; border-bottom:1px solid #c8941a;">[${loc.year}] ${loc.title}</div>
+                    <p style="font-size:11px;">${loc.teaser}</p>
+                    <button class="archive-btn" onclick="openArchive(${index})">View Dossier</button>
                 </div>
             `;
 
@@ -94,40 +108,28 @@ function updateMap() {
     });
 }
 
-// 5. NAVIGATION
+// 6. NAVIGATION & MODAL
 function changeYear(step) {
-    const nextYear = currentYear + step;
-    if (nextYear >= 1939 && nextYear <= 1945) {
-        currentYear = nextYear;
+    const next = currentYear + step;
+    if (next >= 1939 && next <= 1945) {
+        currentYear = next;
         updateMap();
     }
 }
 
-// 6. ARCHIVE MODAL
 function openArchive(index) {
     const loc = locations[index];
-    const modal = document.getElementById('history-modal');
-    const body = document.getElementById('modal-body');
-
-    body.innerHTML = `
-        <h1 style="font-family:'Oswald'; text-transform:uppercase; border-bottom:4px solid #1a1510;">Dossier: ${loc.title} (${loc.year})</h1>
+    document.getElementById('modal-body').innerHTML = `
+        <h1 style="font-family:'Oswald'; border-bottom:4px solid #000;">${loc.title} (${loc.year})</h1>
         <div class="dossier-grid">
+            <img src="images/${loc.img}" style="width:100%;" onerror="this.src='https://placehold.co/400x250/000/fff?text=Photo'">
             <div>
-                <img src="images/${loc.img}" style="width:100%; border:2px solid #000;" onerror="this.src='https://placehold.co/600x400/1a1510/d4c8a8?text=Archive+Photo'">
-                <div class="stat-box">
-                    <div style="font-family:'Oswald'; font-size:12px; color:#c8941a;">CASUALTY REPORT</div>
-                    <div class="casualty-count">${loc.casualties}</div>
-                </div>
+                <div class="stat-box"><b>CASUALTIES:</b> ${loc.casualties}</div>
+                <p><b>SIGNIFICANCE:</b> ${loc.significance}</p>
+                <p><b>OUTCOME:</b> ${loc.outcome}</p>
             </div>
-            <div>
-                <h3 style="font-family:'Oswald'; margin:0;">SIGNIFICANCE</h3>
-                <p style="font-style:italic;">${loc.significance}</p>
-                <h3 style="font-family:'Oswald'; margin-top:20px;">OUTCOME</h3>
-                <p>${loc.outcome}</p>
-            </div>
-        </div>
-    `;
-    modal.style.display = 'block';
+        </div>`;
+    document.getElementById('history-modal').style.display = 'block';
 }
 
 function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
