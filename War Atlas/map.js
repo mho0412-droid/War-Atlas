@@ -1,15 +1,17 @@
 // Initialize map centered over Europe/Atlantic
+// We use a high zoom level (2) to see the whole world
 const map = L.map('map-container', {
-    scrollWheelZoom: false
-}).setView([45.0, 15.0], 3);
+    scrollWheelZoom: false,
+    zoomSnap: 0.5
+}).setView([40.0, 10.0], 2.5);
 
-// OPTION: Esri World Terrain (Clean, English-focused, No API Key)
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ',
-    maxZoom: 18
+// 100% FREE, ENGLISH LABELS, NO API KEY REQUIRED (2026 Updated)
+L.tileLayer('https://tiles.openfreemap.org/styles/liberty/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenFreeMap contributors &copy; OpenStreetMap',
+    maxZoom: 19
 }).addTo(map);
 
-// Locations data
+// Historical Data (English)
 const locations = [
     {
         title: "London, United Kingdom",
@@ -45,20 +47,9 @@ locations.forEach(loc => {
     L.marker(loc.coords, { icon: vintageIcon })
         .addTo(map)
         .bindPopup(`
-            <div style="font-family: 'Oswald', sans-serif; text-align:center;">
-                <strong style="text-transform: uppercase; letter-spacing: 1px;">${loc.title}</strong>
-                <p style="font-family: 'Libre Baskerville', serif; font-size: 13px; margin-top: 5px;">${loc.desc}</p>
+            <div style="font-family: 'Oswald', sans-serif; text-align:center; min-width: 150px;">
+                <strong style="text-transform: uppercase; letter-spacing: 1px; color: #1a1510;">${loc.title}</strong>
+                <p style="font-family: 'Libre Baskerville', serif; font-size: 13px; margin-top: 5px; color: #4a3a28;">${loc.desc}</p>
             </div>
         `);
 });
-2. Adjusting the "Vintage" look in index.html
-Because the Esri map is a bit more detailed (blue oceans, green forests), we need to adjust our CSS filter in index.html to make sure it still looks like 1939 parchment.
-
-Update the .leaflet-container style in your index.html:
-
-CSS
-/* Optimized for Esri World Street Map */
-.leaflet-container {
-  filter: sepia(0.8) contrast(1.2) brightness(0.9) saturate(0.6);
-  background: #e3d9c6 !important;
-}
